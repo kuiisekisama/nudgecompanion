@@ -1,0 +1,24 @@
+NUDGE ON ANDROID: pick ONE way.
+
+A) Easiest, no computer after setup: Netlify Drop (free, gives you a real https link)
+   1. On any computer: go to https://app.netlify.com/drop
+   2. Drag the whole "nudge" folder (or run make-site.sh first and drag ./site).
+   3. Open the link it gives you in Chrome on your phone.
+   4. Chrome menu (3 dots) > Install app. Allow notifications when Nudge asks.
+
+B) Only the phone (no website, no computer): Termux
+   1. Install Termux from F-Droid (f-droid.org), NOT the Play Store version.
+   2. Copy this folder to the phone, e.g. Downloads/nudge
+   3. In Termux:  termux-setup-storage
+                  cd ~/storage/downloads/nudge
+                  sh run-on-phone.sh
+   4. In Chrome open http://localhost:8000 > menu > Install app.
+   After installing, Nudge opens from the home screen even when Termux is closed
+   (it caches itself offline).
+
+Gmail: put your Google Client ID in config.js (or paste it in the app) and add your
+site address (https://yourlink.netlify.app or http://localhost:8000) to the
+"Authorized JavaScript origins" in Google Cloud.
+
+Note: the Android companion app (notification reader) is a separate APK that was not
+in the files you sent; the web app works fully without it.
