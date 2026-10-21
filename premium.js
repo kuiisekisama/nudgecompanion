@@ -1,11 +1,3 @@
-// ---------------------------------------------------------------------------
-// Premium + Pro features. Everything here is gated through hasFeature() /
-// requireFeature() from subscription.js. This file is loaded BEFORE app.js, so
-// it only defines functions and constants; nothing touches `state` until the
-// app calls into it.
-// ---------------------------------------------------------------------------
-
-// ---------- shared helpers ----------
 function genId() {
   return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "u" + Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
@@ -1269,7 +1261,19 @@ function analyticsHtml() {
 // so a copy of the app on someone else's phone can't be unlocked just by choosing a PIN.
 let ADMIN_EMAIL = (typeof NUDGE_CONFIG !== "undefined" && NUDGE_CONFIG.adminEmail) || "";
 let adminUnlocked = false, adminFails = 0, adminLockedUntil = 0;
-function isAdminOwner() { return !ADMIN_EMAIL || (state.gmailEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase(); }
+// Fails closed: with no adminEmail set, nobody gets in. Gmail must be live and signed in as that account.
+function adminEmailSet() { return !!ADMIN_EMAIL; }
+function isAdminOwner() {
+  return adminEmailSet()
+    && typeof gmailAccessToken !== "undefined" && !!gmailAccessToken
+    && (state.gmailEmail || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
+// Lock again after 5 minutes without touching the page, and whenever you leave the Admin screen.
+let adminLastTouch = Date.now();
+["click", "keydown", "touchstart"].forEach((ev) => document.addEventListener(ev, () => { adminLastTouch = Date.now(); }, { passive: true }));
+setInterval(() => {
+  if (adminUnlocked && Date.now() - adminLastTouch > 5 * 60 * 1000) { adminUnlocked = false; if (currentView === "admin") renderPremium(); }
+}, 15000);
 
 async function hashPin(pin, salt) {
   const data = new TextEncoder().encode(salt + ":" + pin);
@@ -1306,7 +1310,11 @@ function renderAdmin() {
   const el = document.getElementById("admin-body");
   if (!el) return;
   if (!isAdminOwner()) {
-    el.innerHTML = `<div class="panel" style="max-width:420px;"><h2 class="font-display">Owner only</h2><p class="panel-sub" style="margin:0;">Connect Gmail with the owner's Google account to open this.</p></div>`;
+    adminUnlocked = false;
+    const msg = adminEmailSet()
+      ? "Connect Gmail with the owner's Google account to open this."
+      : "Admin is switched off. The owner turns it on by putting their Google email in config.js (adminEmail).";
+    el.innerHTML = `<div class="panel" style="max-width:420px;"><h2 class="font-display">Owner only</h2><p class="panel-sub" style="margin:0;">${msg}</p></div>`;
     return;
   }
   const pinFields = (label) => `
