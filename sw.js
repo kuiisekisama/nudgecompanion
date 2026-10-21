@@ -1,9 +1,4 @@
-// Service worker. Three jobs:
-//  1. lets the page call registration.showNotification() (real OS notifications),
-//  2. caches the app files so Nudge opens offline once installed,
-//  3. focuses/opens the app when a notification is tapped.
-
-const CACHE = "nudge-shell-v10";
+const CACHE = "nudge-shell-v11";
 const SHELL = [
   "./", "index.html", "config.js", "ui.js", "app.js", "gmail.js", "subscription.js", "premium.js", "relay.js", "qrcode.js", "install.js",
   "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/logo-mark.png", "sounds/ayame-yo-dayo.mp3",
