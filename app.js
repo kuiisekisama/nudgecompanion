@@ -1,4 +1,3 @@
-// ---------- persistence ----------
 const STORE_KEY = "nudge_state_v2";
 
 function defaultState() {
@@ -622,6 +621,7 @@ function showToast(message) {
 
 // ---------- view/filter switching ----------
 function setView(view) {
+  if (view !== "admin" && typeof adminUnlocked !== "undefined") adminUnlocked = false;
   currentView = view;
   if (typeof toggleMenu === "function") toggleMenu(false);
   document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
